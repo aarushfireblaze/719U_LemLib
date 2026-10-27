@@ -1,0 +1,13 @@
+include/pros/
+include/lemlib/
+include/fmt/
+include/liblvgl/
+firmware/
+bin/
+.cache/
+.d/
+.vscode/
+static/
+compile_commands.json
+project.pros
+include/api.h
