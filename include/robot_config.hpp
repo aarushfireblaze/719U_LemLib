@@ -7,10 +7,11 @@
 // Existing template values: verify ports, directions, and measurements on your robot.
 namespace config {
 // Negative motor ports reverse that motor. Positive power must drive each side forward.
-inline constexpr std::initializer_list<std::int8_t> leftMotorPorts = {-5, 4, -3};
-inline constexpr std::initializer_list<std::int8_t> rightMotorPorts = {6, -9, 7};
+inline constexpr std::initializer_list<std::int8_t> leftMotorPorts = {1, -2};
+inline constexpr std::initializer_list<std::int8_t> rightMotorPorts = {9, -10};
 inline constexpr auto driveGearset = pros::MotorGearset::blue; // 600 RPM cartridges
-inline constexpr std::uint8_t imuPort = 10;
+inline constexpr std::uint8_t imuPort = 20; // reserved for a future IMU
+inline constexpr bool imuInstalled = false; // enable after plugging in the IMU
 inline constexpr std::int8_t verticalEncoderPort = -11; // negative reverses the sensor
 
 inline constexpr float trackWidth = 10; // inches, between left/right wheel centers

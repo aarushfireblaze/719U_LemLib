@@ -20,7 +20,7 @@ lemlib::OdomSensors sensors(
     nullptr, // no second vertical tracking wheel; LemLib uses drive motor encoders
     nullptr, // no horizontal tracking wheels installed
     nullptr,
-    &imu
+    config::imuInstalled ? &imu : nullptr
 );
 
 lemlib::ExpoDriveCurve throttleCurve(config::joystickDeadband, config::minimumDriveOutput,

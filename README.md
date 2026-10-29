@@ -18,7 +18,7 @@ and arcade control APIs directly.
 
 The existing values are retained as starting values, not verified robot measurements:
 
-- Left motors: **-5, 4, -3**. Right motors: **6, -9, 7**. Negative ports reverse motors.
+- Left motors: **1, -2**. Right motors: **9, -10**. Negative ports reverse motors.
   Change the lists in `robot_config.hpp`; you can add/remove motors there.
   Every motor must move its side forward with positive power. Smart ports are 1–21;
   do not assign the same physical port to multiple devices.
@@ -26,7 +26,10 @@ The existing values are retained as starting values, not verified robot measurem
   **10-inch** track width. Wheel RPM = cartridge RPM × driving gear teeth / driven
   gear teeth; use 600 for direct drive with blue cartridges. Measure track width
   between the centers of the left and right wheels.
-- IMU: port **10**. Forward/backward tracking wheel: reversed rotation sensor on
+- IMU: port **20** reserved for future installation, currently disabled with
+  `imuInstalled = false`. Set it to `true` after installing the IMU; startup skips
+  IMU calibration and odometry ignores the IMU until then.
+  Forward/backward tracking wheel: reversed rotation sensor on
   port **11**, new **2.75-inch** wheel, offset **0 inches**. Set the measured offset:
   positive to the right of the robot's tracking center, negative to the left.
   A forward roll should increase this wheel's measured distance.
@@ -37,10 +40,12 @@ The existing values are retained as starting values, not verified robot measurem
   for forward distance; slip will affect accuracy. A missing configured sensor is
   not equivalent to `nullptr`.
 
-Keep the robot still during startup IMU calibration. Start with the wheels raised
+When an IMU is installed and enabled, keep the robot still during startup calibration.
+Start with the wheels raised
 to check motor directions, then check forward motion and clockwise turning at low
 stick input. Driver controls are **left stick Y** for forward/backward and **right
-stick X** for turning, updated every 25 ms using `chassis.arcade()`. LemLib applies
+stick X** for turning (steering input inverted for this robot), updated every 25 ms
+using `chassis.arcade()`. LemLib applies
 the configured deadband and exponential curves. Driver control uses coast braking.
 
 Autonomous resets the pose and drives forward 24 inches, with a 3000 ms timeout.

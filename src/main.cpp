@@ -1,10 +1,12 @@
 #include "main.h"
 #include "drivetrain.hpp"
+#include "robot_config.hpp"
 
 void initialize() {
     pros::lcd::initialize();
-    pros::lcd::set_text(0, "Calibrating: keep robot still");
-    chassis.calibrate();
+    pros::lcd::set_text(0, config::imuInstalled ? "Calibrating: keep robot still"
+                                              : "Starting: IMU disabled");
+    chassis.calibrate(config::imuInstalled);
 
     static pros::Task screenTask([] {
         while (true) {

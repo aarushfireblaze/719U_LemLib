@@ -41,7 +41,7 @@ struct TestChassis {
     void arcade(int throttle, int turn) {
         assert(cancelled && coast);
         assert(throttle == samples[iteration][0]);
-        assert(turn == samples[iteration][1]);
+        assert(turn == -samples[iteration][1]);
         ++calls;
     }
 };
@@ -63,4 +63,4 @@ int main() {
                     str(root / 'src/driver_control.cpp'), str(temp / 'test.cpp'),
                     '-o', str(executable)], check=True)
     subprocess.run([str(executable)], check=True)
-print('PASS: neutral, full-scale and mixed joystick inputs; coast, cancellation and 25 ms loop')
+print('PASS: unchanged throttle, inverted steering, neutral/full-scale/mixed inputs; coast, cancellation and 25 ms loop')
