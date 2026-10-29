@@ -22,5 +22,6 @@ void disabled() {}
 void competition_initialize() {}
 
 void autonomous() {
-    // Add autonomous motions here after measuring the robot and tuning its PID controllers.
+    chassis.setPose(0, 0, 0);
+    chassis.moveToPoint(0, 24, 3000, {}, false); // 24 inches forward; wait for completion
 }

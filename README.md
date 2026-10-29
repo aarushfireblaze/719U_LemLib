@@ -8,7 +8,8 @@ and arcade control APIs directly.
 | File | Purpose |
 | --- | --- |
 | `include/robot_config.hpp` | Motor/sensor ports, cartridge, wheel sizes, gearing, tracking wheel offset, joystick curve |
-| `src/drivetrain.cpp` | Hardware objects, LemLib drivetrain/odometry/chassis construction, autonomous PID tuning |
+| `src/drivetrain.cpp` | Hardware objects and LemLib drivetrain/odometry/chassis construction |
+| `include/pid_tuning.hpp` | Lateral and angular LemLib PID settings |
 | `include/drivetrain.hpp` | Shared chassis declaration |
 | `src/driver_control.cpp` | Driver control (`opcontrol`) |
 | `src/main.cpp` | Initialization, brain pose display, competition callbacks, autonomous |
@@ -42,11 +43,21 @@ stick input. Driver controls are **left stick Y** for forward/backward and **rig
 stick X** for turning, updated every 25 ms using `chassis.arcade()`. LemLib applies
 the configured deadband and exponential curves. Driver control uses coast braking.
 
-Autonomous is intentionally empty. The retained PID/drift values require tuning
-on the actual robot before autonomous use. Without a horizontal tracking wheel,
+Autonomous resets the pose and drives forward 24 inches, with a 3000 ms timeout.
+The retained PID/drift values require tuning on the actual robot. Without a horizontal tracking wheel,
 sideways slip is not measured. The brain display reports odometry, not proof that
 sensor calibration succeeded; inspect the hardware and LemLib warnings if values
 are wrong.
+
+## PID settings
+
+Edit the lateral and angular `lemlib::ControllerSettings` in
+`include/pid_tuning.hpp`, then rebuild and upload. These settings are passed
+directly to the chassis. Driver control is simple arcade: left stick Y drives
+forward/backward, and right stick X turns. There are no PID test button controls.
+
+Run autonomous to test the 24-inch forward motion in `src/main.cpp`. Each run
+resets the starting pose to `(0, 0, 0)`. Keep the robot's path clear.
 
 ## Build
 

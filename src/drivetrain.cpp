@@ -1,5 +1,6 @@
 #include "drivetrain.hpp"
 #include "robot_config.hpp"
+#include "pid_tuning.hpp"
 
 // Keep construction in one file: the chassis depends on these objects already existing.
 namespace {
@@ -13,30 +14,6 @@ lemlib::TrackingWheel verticalWheel(&verticalEncoder, config::trackingWheelDiame
 lemlib::Drivetrain drivetrain(&leftMotors, &rightMotors, config::trackWidth,
                              config::driveWheelDiameter, config::driveWheelRpm,
                              config::horizontalDrift);
-
-// Starting PID values only: tune before using autonomous motions.
-lemlib::ControllerSettings linearController(
-    10,  // kP
-    0,   // kI
-    3,   // kD
-    3,   // integral anti-windup range (inches)
-    1,   // small error range (inches)
-    100, // small error timeout (ms)
-    3,   // large error range (inches)
-    500, // large error timeout (ms)
-    20   // slew
-);
-lemlib::ControllerSettings angularController(
-    2,   // kP
-    0,   // kI
-    10,  // kD
-    3,   // integral anti-windup range (degrees)
-    1,   // small error range (degrees)
-    100, // small error timeout (ms)
-    3,   // large error range (degrees)
-    500, // large error timeout (ms)
-    0    // slew disabled
-);
 
 lemlib::OdomSensors sensors(
     &verticalWheel,
@@ -52,5 +29,5 @@ lemlib::ExpoDriveCurve steerCurve(config::joystickDeadband, config::minimumDrive
                                  config::driveCurveGain);
 } // namespace
 
-lemlib::Chassis chassis(drivetrain, linearController, angularController, sensors,
+lemlib::Chassis chassis(drivetrain, tuning::linearController, tuning::angularController, sensors,
                        &throttleCurve, &steerCurve);
