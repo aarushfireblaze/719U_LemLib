@@ -30,7 +30,7 @@ The existing values are retained as starting values, not verified robot measurem
   `imuInstalled = false`. Set it to `true` after installing the IMU; startup skips
   IMU calibration and odometry ignores the IMU until then.
   Forward/backward tracking wheel: reversed rotation sensor on
-  port **11**, new **2.75-inch** wheel, offset **0 inches**. Set the measured offset:
+  port **8**, new **2.75-inch** wheel, offset **0 inches**. Set the measured offset:
   positive to the right of the robot's tracking center, negative to the left.
   A forward roll should increase this wheel's measured distance.
 - No horizontal tracking wheel is configured. LemLib fills the unused second

@@ -14,7 +14,7 @@ inline const lemlib::ControllerSettings linearController(
     100, // small error timeout (ms)
     3,   // large error range (inches)
     500, // large error timeout (ms)
-    20   // slew; 0 disables acceleration limiting
+    0    // slew disabled for linear movement tuning
 );
 inline const lemlib::ControllerSettings angularController(
     2,   // kP: heading correction
