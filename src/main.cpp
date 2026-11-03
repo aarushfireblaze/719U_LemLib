@@ -14,8 +14,12 @@ void initialize() {
     pros::lcd::set_text(6, "Ready; waiting for driver mode");
 
     static pros::Task screenTask([] {
+        pros::Controller controller(pros::E_CONTROLLER_MASTER);
+        controller.clear();
+        pros::delay(100); // Space controller screen commands apart.
         while (true) {
             const auto pose = chassis.getPose();
+            controller.print(0, 0, "X:%6.1f Y:%6.1f  ", pose.x, pose.y);
             pros::lcd::print(0, "X: %.2f in", pose.x);
             pros::lcd::print(1, "Y: %.2f in", pose.y);
             pros::lcd::print(2, "Heading: %.2f deg", pose.theta);
@@ -39,5 +43,8 @@ void autonomous() {
     pros::lcd::set_text(6, "Mode: AUTONOMOUS");
     lift.LiftStop();
     chassis.setPose(0, 0, 0);
-    chassis.moveToPoint(0, 24, 3000, {}, false); // 24 inches forward; wait for completion
+    const auto started = pros::millis();
+    chassis.moveToPoint(0, 48, 10000, {.maxSpeed = 127}, false);
+    pros::lcd::print(7, "Motion ended: %lu ms",
+                     static_cast<unsigned long>(pros::millis() - started));
 }

@@ -48,7 +48,8 @@ stick X** for turning (steering input inverted for this robot), updated every 25
 using `chassis.arcade()`. LemLib applies
 the configured deadband and exponential curves. Driver control uses coast braking.
 
-Autonomous resets the pose and drives forward 24 inches, with a 3000 ms timeout.
+Autonomous resets the pose and drives forward 48 inches, with a 10000 ms timeout.
+Brain line 7 reports elapsed motion time when the move ends.
 The retained PID/drift values require tuning on the actual robot. Without a horizontal tracking wheel,
 sideways slip is not measured. The brain display reports odometry, not proof that
 sensor calibration succeeded; inspect the hardware and LemLib warnings if values
@@ -61,7 +62,7 @@ Edit the lateral and angular `lemlib::ControllerSettings` in
 directly to the chassis. Driver control is simple arcade: left stick Y drives
 forward/backward, and right stick X turns. There are no PID test button controls.
 
-Run autonomous to test the 24-inch forward motion in `src/main.cpp`. Each run
+Run autonomous to test the 48-inch forward motion in `src/main.cpp`. Each run
 resets the starting pose to `(0, 0, 0)`. Keep the robot's path clear.
 
 ## Build
