@@ -2,12 +2,12 @@
 
 Motor 20 is normal; motor 5 is reversed. The shared lift instance is available
 in autonomous and driver control. LiftUp() and LiftDown() run continuously in
-the requested direction at maximum configured RPM. LiftStop() stops and holds.
+the requested direction: up at maximum configured RPM, down at 60% of it. LiftStop() stops and holds.
 Commands return immediately; the latest command wins. A single background
 worker owns motor writes and updates both encoders every 5 ms, plus scheduling
 and device latency. Driver buttons are sampled every 10 ms.
 
-R1 raises; R2 lowers. Both or neither held stops and holds. Disable clears the
+Right arrow raises; down arrow lowers. Y toggles the claw piston (port A). Both or neither held stops and holds. Disable clears the
 motion command. Software holding torque requires power and an enabled robot.
 
 There are NO software travel limits, endpoint targets, endpoint slowing, or

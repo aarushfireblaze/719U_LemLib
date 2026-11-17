@@ -65,8 +65,9 @@ void Lift::Run() {
             Hold();
         } else {
             holding = false;
-            const auto a = motor20.move_velocity(up ? rpm20 : -rpm20);
-            const auto b = motor5.move_velocity(up ? rpm5 : -rpm5);
+            // Lowering runs at 60% of max speed; raising stays at full speed.
+            const auto a = motor20.move_velocity(up ? rpm20 : -rpm20 * 60 / 100);
+            const auto b = motor5.move_velocity(up ? rpm5 : -rpm5 * 60 / 100);
             if (a != 1 || b != 1) {
                 Faulted.store(true);
                 Hold();

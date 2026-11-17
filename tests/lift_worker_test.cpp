@@ -30,7 +30,7 @@ int main(int argc, char** argv) {
     assert(a.rpm == expectedRpm && b.rpm == expectedRpm);
     a.position = 100; b.position = 110;
     lift.LiftDown(); tick();
-    assert(a.rpm == -expectedRpm && b.rpm == -expectedRpm && lift.LiftPos.load() == 105);
+    assert(a.rpm == -expectedRpm * 60 / 100 && b.rpm == -expectedRpm * 60 / 100 && lift.LiftPos.load() == 105);
     lift.LiftUp(); lift.LiftDown(); lift.LiftStop();
     const int count = a.moves;
     tick(); tick();

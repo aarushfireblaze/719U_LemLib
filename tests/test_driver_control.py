@@ -15,7 +15,8 @@ inline int iteration = 0;
 inline constexpr int samples[][2] = {{0, 0}, {127, -127}, {-127, 127}, {42, -23}};
 namespace pros {
 enum { E_CONTROLLER_MASTER, E_CONTROLLER_ANALOG_LEFT_Y, E_CONTROLLER_ANALOG_RIGHT_X,
-       E_MOTOR_BRAKE_COAST, E_CONTROLLER_DIGITAL_R1, E_CONTROLLER_DIGITAL_R2 };
+       E_MOTOR_BRAKE_COAST, E_CONTROLLER_DIGITAL_RIGHT, E_CONTROLLER_DIGITAL_DOWN,
+       E_CONTROLLER_DIGITAL_Y };
 namespace lcd {
 inline void set_text(int, const char*) {}
 template<class... Args> void print(int, const char*, Args...) {}
@@ -26,8 +27,12 @@ struct Controller {
         assert(axis == E_CONTROLLER_ANALOG_LEFT_Y || axis == E_CONTROLLER_ANALOG_RIGHT_X);
         return samples[iteration][axis == E_CONTROLLER_ANALOG_RIGHT_X];
     }
+    bool get_digital_new_press(int button) {
+        assert(button == E_CONTROLLER_DIGITAL_Y);
+        return iteration == 1 || iteration == 2;
+    }
     bool get_digital(int button) {
-        return button == E_CONTROLLER_DIGITAL_R1 ? (iteration == 1 || iteration == 3)
+        return button == E_CONTROLLER_DIGITAL_RIGHT ? (iteration == 1 || iteration == 3)
                                                 : (iteration == 2 || iteration == 3);
     }
 };
@@ -66,14 +71,27 @@ struct TestLift {
 };
 inline TestLift lift;
 ''')
+    (temp / 'claw.hpp').write_text(r'''
+#pragma once
+#include <vector>
+struct TestClaw {
+    std::vector<bool> values;
+    void set_value(bool value) { values.push_back(value); }
+};
+inline TestClaw claw;
+inline bool clawExtended = false;
+inline void setClaw(bool extended) { clawExtended = extended; claw.set_value(extended); }
+''')
     (temp / 'test.cpp').write_text(r'''
 #include "drivetrain.hpp"
 #include "lift.hpp"
+#include "claw.hpp"
 void opcontrol();
 int main() {
     try { opcontrol(); } catch (const Finished&) {}
     assert(chassis.calls == 4);
     assert(lift.up == 1 && lift.down == 1 && lift.stop == 3);
+    assert((claw.values == std::vector<bool>{true, false})); // Y toggles.
 }
 ''')
     compiler = shutil.which('c++')
@@ -84,4 +102,4 @@ int main() {
                     str(root / 'src/driver_control.cpp'), str(temp / 'test.cpp'),
                     '-o', str(executable)], check=True)
     subprocess.run([str(executable)], check=True)
-print('PASS: drivetrain inputs, R1/R2 holds, both/neither stop, coast, cancellation and 10 ms loop')
+print('PASS: drivetrain inputs, right/down arrow holds, Y claw toggle, both/neither stop, coast, cancellation and 10 ms loop')
