@@ -31,6 +31,23 @@ int main(int argc, char** argv) {
     a.position = 100; b.position = 110;
     lift.LiftDown(); tick();
     assert(a.rpm == -expectedRpm * 60 / 100 && b.rpm == -expectedRpm * 60 / 100 && lift.LiftPos.load() == 105);
+    // Timed moves run until their deadline, then stop and hold on their own.
+    lift.LiftUpFor(100); tick();
+    assert(a.rpm == expectedRpm && b.rpm == expectedRpm);
+    const int timed = a.moves;
+    pros::now += 99; tick();
+    assert(a.moves == timed + 1); // Still running 1 ms before the deadline.
+    pros::now += 1; tick(); tick();
+    assert(a.moves == timed + 1); // Deadline reached: stopped and holding.
+    lift.LiftDownFor(50); tick();
+    assert(a.rpm == -expectedRpm * 60 / 100);
+    pros::now += 50; tick();
+    const int afterDown = a.moves;
+    tick();
+    assert(a.moves == afterDown);
+    lift.LiftUpFor(10); lift.LiftUp(); pros::now += 20; tick();
+    assert(a.moves == afterDown + 1 && a.rpm == expectedRpm); // Plain LiftUp cancels the timer.
+
     lift.LiftUp(); lift.LiftDown(); lift.LiftStop();
     const int count = a.moves;
     tick(); tick();

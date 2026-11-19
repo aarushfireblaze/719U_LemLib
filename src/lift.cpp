@@ -31,9 +31,12 @@ void Lift::Initialize() {
 }
 
 // Commands are nonblocking; one worker owns all motor writes. Latest command wins.
-void Lift::LiftUp() { command.store(Command::Up); }
-void Lift::LiftDown() { command.store(Command::Down); }
-void Lift::LiftStop() { command.store(Command::Stop); }
+void Lift::LiftUp() { stopAt.store(0); command.store(Command::Up); }
+void Lift::LiftDown() { stopAt.store(0); command.store(Command::Down); }
+void Lift::LiftStop() { stopAt.store(0); command.store(Command::Stop); }
+// Deadline is set before the command so the worker never sees the new command with an old deadline.
+void Lift::LiftUpFor(int ms) { stopAt.store(pros::millis() + ms); command.store(Command::Up); }
+void Lift::LiftDownFor(int ms) { stopAt.store(pros::millis() + ms); command.store(Command::Down); }
 
 void Lift::Hold() {
     if (holding) return; // Preserve the captured hold target while stationary.
@@ -56,6 +59,10 @@ void Lift::Run() {
         // not permanently disable the lift. Invalid feedback still stops it.
         if (!lift_feedback::valid(first, second)) Faulted.store(true);
 
+        // A timed move whose time is up becomes a stop.
+        auto deadline = stopAt.load();
+        if (deadline != 0 && pros::millis() >= deadline && stopAt.compare_exchange_strong(deadline, 0))
+            command.store(Command::Stop);
         const auto requested = command.load();
         const bool up = requested == Command::Up;
         const bool disabled = pros::competition::is_disabled();

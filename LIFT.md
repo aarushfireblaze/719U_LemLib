@@ -3,7 +3,9 @@
 Motor 20 is normal; motor 5 is reversed. The shared lift instance is available
 in autonomous and driver control. LiftUp() and LiftDown() run continuously in
 the requested direction: up at maximum configured RPM, down at 60% of it. LiftStop() stops and holds.
-Commands return immediately; the latest command wins. A single background
+Commands return immediately; the latest command wins. LiftUpFor(ms) and LiftDownFor(ms) are timed
+versions for autonomous: they run for that many milliseconds, then stop and hold
+on their own; any other command cancels the timer. A single background
 worker owns motor writes and updates both encoders every 5 ms, plus scheduling
 and device latency. Driver buttons are sampled every 10 ms.
 

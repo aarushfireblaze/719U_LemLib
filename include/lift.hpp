@@ -1,6 +1,7 @@
 #pragma once
 
 #include <atomic>
+#include <cstdint>
 #include "pros/motors.hpp"
 #include "pros/rtos.hpp"
 
@@ -12,6 +13,10 @@ public:
     void LiftUp();
     void LiftDown();
     void LiftStop();
+    // Timed moves for autonomous: run for `ms` milliseconds, then stop and hold on their own.
+    // They return immediately, so the robot can drive while the lift moves.
+    void LiftUpFor(int ms);
+    void LiftDownFor(int ms);
 
     // Refreshed every 5 ms. LiftPos is the unbounded average of both encoders.
     std::atomic<double> LiftPos{0};
@@ -27,6 +32,7 @@ private:
     pros::Motor motor20{20, pros::v5::MotorGears::invalid, pros::v5::MotorUnits::degrees};
     pros::Motor motor5{-5, pros::v5::MotorGears::invalid, pros::v5::MotorUnits::degrees};
     std::atomic<Command> command{Command::Stop};
+    std::atomic<std::uint32_t> stopAt{0}; // pros::millis() deadline for a timed move; 0 = none.
     bool holding = false; // Only Initialize/worker access motor control state.
     int rpm20 = 0;
     int rpm5 = 0;
