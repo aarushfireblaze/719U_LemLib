@@ -48,36 +48,67 @@ void autonomous() {
     lift.LiftStop();
     const auto started = pros::millis();
     // Field coordinates in inches, field center = (0, 0), same as path.jerryio.
-    // Robot starts 5 in in front of the toggle on the center line, facing +x, then backs up fast to (-61.2, 0).
     chassis.setPose(-56.2, 0, 90);
     chassis.moveToPoint(-61.2, 0, 1000, {.forwards = false, .minSpeed = 100, .earlyExitRange = 0.5}, false);
-
-    // Path from path.jerryio (inches). Each point is a straight line; turns happen in place first.
-    // 1. Forward to (-46.73, -0.05).
     chassis.moveToPoint(-46.73, -0.05, 2000, {}, false);
-    // 2. Turn to face down, forward to (-46.73, -14.05).
-    chassis.turnToPoint(-46.73, -14.05, 1000, {.minSpeed = 20, .earlyExitRange = 5}, false); // chained into the drive
-    chassis.moveToPoint(-46.73, -14.05, 2000, {}, false);
-    // 3. Back straight up to (-46.73, -0.25).
+
+    // Score the preload in the upper red Goal. Lift up halfway through the 14 in drive.
+    chassis.turnToPoint(-46.73, -14.05, 1000, {.minSpeed = 20, .earlyExitRange = 5}, false);
+    chassis.moveToPoint(-46.73, -14.05, 2000);
+    chassis.waitUntil(7);
+    lift.LiftUp(); // Keeps rising while the robot drives in.
+    chassis.waitUntilDone();
+    lift.LiftStop();
+    // On the Goal: lower the lift, wait half a second, release before moving away.
+    lift.LiftDown();
+    pros::delay(600); // TUNE: how long the lift lowers.
+    lift.LiftStop();
+    pros::delay(500);
+    openClaw();
+
+    // Back up, then go straight to the middle Pin at (-23.55, -23.55), slow for the last 10 in.
     chassis.moveToPoint(-46.73, -0.25, 2000, {.forwards = false}, false);
-    // 4. Turn to face +x, forward to (-32.73, -0.25).
-    chassis.turnToPoint(-32.73, -0.25, 1000, {}, false);
-    chassis.moveToPoint(-32.73, -0.25, 2000, {}, false);
-    // 5. Slowly to the center-line Pin spot (-24.26, -0.25).
-    chassis.moveToPoint(-24.26, -0.25, 2000, {.maxSpeed = 30}, false);
-    // 6. Turn toward (-40.23, -16.61) (about 225 deg), forward to it.
-    chassis.turnToPoint(-40.23, -16.61, 1000, {.minSpeed = 20, .earlyExitRange = 5}, false); // chained into the drive
-    chassis.moveToPoint(-40.23, -16.61, 2000, {}, false);
-    // 7. Back straight up to (-23.92, -0.03).
-    chassis.moveToPoint(-23.92, -0.03, 2000, {.forwards = false}, false);
-    // 8. Turn to face down, forward to (-23.75, -14.35).
-    chassis.turnToPoint(-23.75, -14.35, 1000, {}, false);
-    chassis.moveToPoint(-23.75, -14.35, 2000, {}, false);
-    // 9. Slowly to the middle Pin spot (-23.75, -23.19).
+    chassis.turnToPoint(-23.75, -23.19, 1000, {}, false);
+    chassis.moveToPoint(-30.83, -16.13, 2000, {.minSpeed = 30, .earlyExitRange = 1}, false);
     chassis.moveToPoint(-23.75, -23.19, 2000, {.maxSpeed = 30}, false);
-    // 10. Turn to face -x (about 270 deg), forward to (-38.24, -23.54) at the red Goal.
-    chassis.turnToPoint(-38.24, -23.54, 1000, {.minSpeed = 20, .earlyExitRange = 5}, false); // chained into the drive
-    chassis.moveToPoint(-38.24, -23.54, 2000, {}, false);
+    closeClaw(); // Grab the Pin.
+    pros::delay(200); // Let the piston grip before driving.
+
+    // Score it in the upper red Goal. Full lift halfway through the 14.5 in drive.
+    chassis.turnToPoint(-38.24, -23.54, 1000, {.minSpeed = 20, .earlyExitRange = 5}, false);
+    chassis.moveToPoint(-38.24, -23.54, 2000);
+    chassis.waitUntil(7);
+    lift.LiftUp(); // Keeps rising while the robot drives in.
+    chassis.waitUntilDone();
+    lift.LiftStop();
+    // On the Goal: lower the lift, wait half a second, release before moving away.
+    lift.LiftDown();
+    pros::delay(600); // TUNE: how long the lift lowers.
+    lift.LiftStop();
+    pros::delay(500);
+    openClaw();
+
+    // Back up to x = -23.75, face 225, go to the corner Pin at (-46, -46), slow for the last 10 in.
+    chassis.moveToPoint(-23.75, -23.54, 2000, {.forwards = false}, false);
+    chassis.turnToHeading(225, 1000, {}, false);
+    chassis.moveToPoint(-38.96, -38.9, 2000, {.minSpeed = 30, .earlyExitRange = 1}, false);
+    chassis.moveToPoint(-46, -46, 2000, {.maxSpeed = 30}, false);
+    closeClaw(); // Grab the Pin.
+    pros::delay(200); // Let the piston grip before driving.
+
+    // Face 0 and score in the upper red Goal from below, stopping 9 in short. Full lift halfway (13.5 in drive).
+    chassis.turnToHeading(0, 1000, {.minSpeed = 20, .earlyExitRange = 5}, false);
+    chassis.moveToPoint(-46, -32.5, 2000);
+    chassis.waitUntil(7);
+    lift.LiftUp(); // Keeps rising while the robot drives in.
+    chassis.waitUntilDone();
+    lift.LiftStop();
+    // On the Goal: lower the lift, wait half a second, release before moving away.
+    lift.LiftDown();
+    pros::delay(600); // TUNE: how long the lift lowers.
+    lift.LiftStop();
+    pros::delay(500);
+    openClaw();
 
     pros::lcd::print(7, "Auton ended: %lu ms",
                      static_cast<unsigned long>(pros::millis() - started));
