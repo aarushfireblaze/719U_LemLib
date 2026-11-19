@@ -51,7 +51,8 @@ struct TestChassis {
     int calls = 0;
     void cancelAllMotions() { cancelled = true; }
     void setBrakeMode(int mode) { coast = mode == pros::E_MOTOR_BRAKE_COAST; }
-    void arcade(int throttle, int turn) {
+    void arcade(int throttle, int turn, bool disableCurve, float bias) {
+        assert(!disableCurve && bias == 1.0f);
         assert(cancelled && coast);
         assert(throttle == samples[iteration][0]);
         assert(turn == -samples[iteration][1]);
