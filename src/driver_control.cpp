@@ -14,8 +14,8 @@ void opcontrol() {
     while (true) {
         const int throttle = controller.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
         const int turn = -controller.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X);
-        // Bias 1.0 favors turning when throttle + turn exceed motor power: tighter turns at full speed.
-        chassis.arcade(throttle, turn, false, 1.0);
+        // Bias 0.7 leans toward turning when throttle + turn exceed motor power: tighter turns at full speed.
+        chassis.arcade(throttle, turn, false, 0.7);
         const bool up = controller.get_digital(pros::E_CONTROLLER_DIGITAL_RIGHT);
         const bool down = controller.get_digital(pros::E_CONTROLLER_DIGITAL_DOWN);
         static unsigned int displayTicks = 0;
