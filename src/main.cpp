@@ -3,6 +3,7 @@
 #include "robot_config.hpp"
 #include "lift.hpp"
 #include "claw.hpp"
+#include <cmath>
 
 void initialize() {
     pros::lcd::initialize();
@@ -70,12 +71,22 @@ void autonomous() {
     // chassis.moveToPoint(-63, 0, 1500, {.forwards = false, .minSpeed = 100, .earlyExitRange = 0.5}, false); // fast: no slow-down into the toggle
     // chassis.moveToPoint(-46.978, 0, 2000, {}, false);
 
-    // // Go straight to the middle Pin at (-23.55, -23.55), slow for the last 10 in.
-    chassis.turnToPoint(-23.75, -23.19, 1000, {}, false);
-    chassis.moveToPoint(-23.75, -23.19, 2000, {}, false);
-    // chassis.moveToPoint(-23.75, -23.19, 2000, {.maxSpeed = 30}, false);
-    // closeClaw(); // Grab the Pin.
-    // pros::delay(200); // Let the piston grip before driving.
+    // Follow the same line toward the middle pin and stop the chassis 9 inches short.
+    constexpr float pinX = -23.75f;
+    constexpr float pinY = -23.19f;
+    constexpr float stopShort = 9.0f;
+    const auto pose = chassis.getPose();
+    const float dx = pinX - pose.x;
+    const float dy = pinY - pose.y;
+    const float distance = std::hypot(dx, dy);
+    if (distance > stopShort) {
+        const float scale = (distance - stopShort) / distance;
+        const float targetX = pose.x + dx * scale;
+        const float targetY = pose.y + dy * scale;
+        chassis.turnToPoint(targetX, targetY, 1000, {}, false);
+        chassis.moveToPoint(targetX, targetY, 2000, {.maxSpeed = 62}, false);
+    }
+    closeClaw(); // Grab the pin.
 
     // // Score it in the upper red Goal. Full lift halfway through the 14.5 in drive.
     // chassis.turnToPoint(-38.24, -23.54, 1000, {.minSpeed = 20, .earlyExitRange = 5}, false);
