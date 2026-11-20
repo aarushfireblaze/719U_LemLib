@@ -19,7 +19,7 @@ inline constexpr std::int8_t verticalEncoderPort = 8; // positive uses the senso
 inline constexpr float trackWidth = 10; // inches, between left/right wheel centers
 inline constexpr float driveWheelDiameter = 2.75;
 inline constexpr float driveWheelRpm = 450; // wheel RPM AFTER external gearing
-inline constexpr float horizontalDrift = 0; // starting value for omni wheels; tune on robot
+inline constexpr float horizontalDrift = 2; // LemLib default for omni wheels; 0 stops moveToPose from driving
 inline constexpr float trackingWheelDiameter = 2.0;
 inline constexpr float verticalWheelOffset = 0; // inches; right of tracking center is positive
 
