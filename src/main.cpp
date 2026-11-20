@@ -8,6 +8,7 @@ void initialize() {
     pros::lcd::initialize();
     pros::lcd::set_text(0, "Starting lift...");
     lift.Initialize();
+    startAutoClamp(); // Background task; starts off until setAutoClamp(true).
     pros::lcd::set_text(6, "Lift initialized; calibrating");
     pros::lcd::set_text(0, config::imuInstalled ? "Calibrating: keep robot still"
                                               : "Starting: IMU disabled");
@@ -23,6 +24,12 @@ void initialize() {
             controller.print(0, 0, "X:%6.1f Y:%6.1f  ", pose.x, pose.y);
             pros::delay(50); // Space controller screen commands apart.
             controller.print(1, 0, "Angle:%7.2f deg  ", pose.theta);
+            pros::delay(50);
+            // TESTING auto-clamp: sensor mm, auto on/off, claw extended.
+            controller.print(2, 0, "D:%4d A:%d C:%d   ", static_cast<int>(clawDistance.get_distance()),
+                             autoClampOn.load() ? 1 : 0, clawExtended.load() ? 1 : 0);
+            pros::lcd::print(3, "Dist: %d mm  auto:%d  claw ext:%d", static_cast<int>(clawDistance.get_distance()),
+                             autoClampOn.load() ? 1 : 0, clawExtended.load() ? 1 : 0);
             pros::lcd::print(0, "X: %.2f in", pose.x);
             pros::lcd::print(1, "Y: %.2f in", pose.y);
             pros::lcd::print(2, "Heading: %.2f deg", pose.theta);
@@ -46,6 +53,7 @@ void competition_initialize() {}
 void autonomous() {
     pros::lcd::set_text(6, "Mode: AUTONOMOUS");
     lift.LiftStop();
+    setAutoClamp(true); // Claw closes by itself when a cup gets within 1 in.
     const auto started = pros::millis();
     // Field coordinates in inches, field center = (0, 0), same as path.jerryio.
     // Start on the center line facing 270 (front toward the left wall), back straight up to x = -46.73.
@@ -72,15 +80,15 @@ void autonomous() {
 
     // Middle pin at (-23.75, -23.19): face it and stop 9 in short, on the line from (-46.978, 0).
     chassis.turnToPoint(-23.75, -23.75, 1000, {}, false);
-    chassis.moveToPoint(-32.5, -15.73, 2000, {.maxSpeed = 40, .minSpeed = 30, .earlyExitRange = 1}, false);
+    chassis.moveToPoint(-29.3, -17.5, 2000, {.maxSpeed = 40, .minSpeed = 30, .earlyExitRange = 1}, false);
     closeClaw(); // Grab the pin.
     lift.LiftUpFor(700); // Lift rises during the next move; returns instantly.
     // chassis.moveToPoint(-24, -24, 2000, {.maxSpeed = 62}, false);
 
 
     // Score it in the upper red Goal: start the lift, drive in right away, lower, release.
-    chassis.turnToPoint(-38.24, -23.54, 1000, {.minSpeed = 20, .earlyExitRange = 5}, false);
-    chassis.moveToPoint(-40.7, -23.54, 2000, {}, false);
+    chassis.turnToPoint(-38.15, -23.54, 1000, {.minSpeed = 20, .earlyExitRange = 5}, false);
+    chassis.moveToPoint(-43, -23, 2000, {}, false);
     lift.LiftDown();
     pros::delay(600); // TUNE: how long the lift lowers.
     lift.LiftStop();

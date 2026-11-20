@@ -80,8 +80,11 @@ struct TestClaw {
     void set_value(bool value) { values.push_back(value); }
 };
 inline TestClaw claw;
-inline bool clawExtended = false;
+struct FakeFlag { bool v = false; FakeFlag& operator=(bool b) { v = b; return *this; } bool load() const { return v; } };
+inline FakeFlag clawExtended;
 inline void setClaw(bool extended) { clawExtended = extended; claw.set_value(extended); }
+inline bool autoClampOn = true;
+inline void setAutoClamp(bool on) { autoClampOn = on; }
 ''')
     (temp / 'test.cpp').write_text(r'''
 #include "drivetrain.hpp"
@@ -91,6 +94,7 @@ void opcontrol();
 int main() {
     try { opcontrol(); } catch (const Finished&) {}
     assert(chassis.calls == 4);
+    assert(autoClampOn); // TESTING: driver mode turns auto-clamp on.
     assert(lift.up == 1 && lift.down == 1 && lift.stop == 3);
     assert((claw.values == std::vector<bool>{true, false})); // Y toggles.
 }

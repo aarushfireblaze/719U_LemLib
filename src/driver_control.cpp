@@ -8,6 +8,7 @@ void opcontrol() {
     pros::Controller controller(pros::E_CONTROLLER_MASTER);
     chassis.cancelAllMotions();
     lift.LiftStop();
+    setAutoClamp(true); // TESTING: auto-clamp on in driver. Set back to false after testing.
     chassis.setBrakeMode(pros::E_MOTOR_BRAKE_COAST);
     pros::lcd::set_text(6, "Mode: DRIVER active");
 
@@ -25,7 +26,7 @@ void opcontrol() {
         else if (up) lift.LiftUp();
         else lift.LiftDown();
         if (controller.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y)) {
-            setClaw(!clawExtended); // Y toggles the claw piston.
+            setClaw(!clawExtended.load()); // Y toggles the claw piston.
         }
         pros::delay(10);
     }

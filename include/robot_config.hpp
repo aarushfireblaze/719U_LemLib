@@ -23,6 +23,12 @@ inline constexpr float horizontalDrift = 2; // LemLib default for omni wheels; 0
 inline constexpr float trackingWheelDiameter = 2.0;
 inline constexpr float verticalWheelOffset = 0; // inches; right of tracking center is positive
 
+// Auto-clamp distance sensor. TODO: set to the real smart port.
+inline constexpr std::uint8_t clawDistancePort = 11;
+inline constexpr int autoClampRangeMm = 51; // 2 inches (50.8 mm); tune on robot
+// Sensor updates ~30 Hz (~33 ms) + piston close time. Raise if it still grabs late.
+inline constexpr float autoClampLookaheadMs = 60;
+
 inline constexpr float joystickDeadband = 3; // out of 127
 inline constexpr float minimumDriveOutput = 10; // out of 127; tune for your drivetrain
 inline constexpr float driveCurveGain = 1.019;

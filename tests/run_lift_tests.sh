@@ -10,4 +10,6 @@ g++ -std=c++17 -Wall -Wextra -Werror -Itests/lift_fakes -I"$test_dir" -Iinclude 
 for gearing in 0 1 2 3; do "$test_dir/worker" "$gearing"; done
 g++ -std=c++17 -Wall -Wextra -Werror -Iinclude tests/lift_feedback_test.cpp -o "$test_dir/feedback"
 "$test_dir/feedback"
-echo 'Lift worker and feedback tests passed.'
+g++ -std=c++17 -Wall -Wextra -Werror -Iinclude tests/cup_predictor_test.cpp -o "$test_dir/predictor"
+"$test_dir/predictor"
+echo "Lift worker, feedback and cup predictor tests passed."
