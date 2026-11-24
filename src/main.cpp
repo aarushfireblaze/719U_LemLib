@@ -3,61 +3,31 @@
 #include "robot_config.hpp"
 #include "lift.hpp"
 #include "claw.hpp"
+#include "localization/ekf_telemetry.hpp"
+#include "localization/localizer.hpp"
 
 void initialize() {
-    pros::lcd::initialize();
-    pros::lcd::set_text(0, "Starting lift...");
     lift.Initialize();
     startAutoClamp(); // Background task; starts off until setAutoClamp(true).
-    pros::lcd::set_text(6, "Lift initialized; calibrating");
-    pros::lcd::set_text(0, config::imuInstalled ? "Calibrating: keep robot still"
-                                              : "Starting: IMU disabled");
     chassis.calibrate(config::imuInstalled);
-    pros::lcd::set_text(6, "Ready; waiting for driver mode");
-
-    static pros::Task screenTask([] {
-        pros::Controller controller(pros::E_CONTROLLER_MASTER);
-        controller.clear();
-        pros::delay(100); // Space controller screen commands apart.
-        while (true) {
-            const auto pose = chassis.getPose();
-            controller.print(0, 0, "X:%6.1f Y:%6.1f  ", pose.x, pose.y);
-            pros::delay(50); // Space controller screen commands apart.
-            controller.print(1, 0, "Angle:%7.2f deg  ", pose.theta);
-            pros::delay(50);
-            // TESTING auto-clamp: sensor mm, auto on/off, claw extended.
-            controller.print(2, 0, "D:%4d A:%d C:%d   ", static_cast<int>(clawDistance.get_distance()),
-                             autoClampOn.load() ? 1 : 0, clawExtended.load() ? 1 : 0);
-            pros::lcd::print(3, "Dist: %d mm  auto:%d  claw ext:%d", static_cast<int>(clawDistance.get_distance()),
-                             autoClampOn.load() ? 1 : 0, clawExtended.load() ? 1 : 0);
-            pros::lcd::print(0, "X: %.2f in", pose.x);
-            pros::lcd::print(1, "Y: %.2f in", pose.y);
-            pros::lcd::print(2, "Heading: %.2f deg", pose.theta);
-            // Lift telemetry disabled while testing chassis turning.
-            // pros::lcd::print(3, "Lift: %.1f deg", lift.LiftPos.load());
-            // pros::lcd::print(4, "Lift enc: %.1f / %.1f", lift.Motor20Pos.load(), lift.Motor5Pos.load());
-            // pros::lcd::print(5, "Lift: %s", lift.Faulted.load() ? "FAULT - stopped" :
-            //                  lift.EncoderMismatch.load() ? "encoder difference" : "ready");
-            pros::delay(100);
-        }
-    });
+    const bool imuOk = waitForImuCalibration(); // LemLib can return before the IMU is really done
+    chassis.setPose(0, 0, 0); // drop any heading odometry picked up while calibration finished
+    loc::startEkfTelemetry(imuOk); // controller + laptop terminal; nothing prints to the brain screen
 }
 
 void disabled() {
     lift.LiftStop();
-    pros::lcd::set_text(6, "Competition: DISABLED");
 }
 
 void competition_initialize() {}
 
 void autonomous() {
-    pros::lcd::set_text(6, "Mode: AUTONOMOUS");
     lift.LiftStop();
     setAutoClamp(true); // Claw closes by itself when a cup gets within 1 in.
-    const auto started = pros::millis();
     // Field coordinates in inches, field center = (0, 0), same as path.jerryio.
     // Start on the center line facing 270 (front toward the left wall), back straight up to x = -46.73.
     chassis.setPose(-60.2, 0, 270);
+    localizer.start({-60.2, 0, 270}); // EKF distance-sensor correction; no-op if EKF_ENABLED is false
     chassis.moveToPoint(-46.978, 0, 2000, {.forwards = false}, false);
 
     // // Score the preload in the upper red Goal. Lift starts rising as the drive starts.

@@ -12,7 +12,7 @@ and arcade control APIs directly.
 | `include/pid_tuning.hpp` | Lateral and angular LemLib PID settings |
 | `include/drivetrain.hpp` | Shared chassis declaration |
 | `src/driver_control.cpp` | Driver control (`opcontrol`) |
-| `src/main.cpp` | Initialization, brain pose display, competition callbacks, autonomous |
+| `src/main.cpp` | Initialization, competition callbacks, autonomous |
 
 ## Configure before driving
 
@@ -52,9 +52,8 @@ Autonomous resets the pose to `(0, 0, 0)` and tests a curved `moveToPose` approa
 to `(24, 24, 90 degrees)`, with a 10000 ms timeout, maximum speed 127,
 lead 0.6, and trial horizontal drift 8. The motion-chaining and standalone turn
 tests remain commented out in `src/main.cpp`.
-Brain line 7 reports elapsed motion time when the move ends.
 The retained PID/drift values require tuning on the actual robot. Without a horizontal tracking wheel,
-sideways slip is not measured. The brain display reports odometry, not proof that
+sideways slip is not measured. The controller display reports odometry, not proof that
 sensor calibration succeeded; inspect the hardware and LemLib warnings if values
 are wrong.
 
@@ -94,3 +93,14 @@ The PROS ARM build does not need this workaround.
 - [LemLib driver control](https://lemlib.readthedocs.io/en/stable/tutorials/3_driver_control.html)
 - [LemLib PID tuning](https://lemlib.readthedocs.io/en/stable/tutorials/4_pid_tuning.html)
 - [LemLib 0.5.6 source](https://github.com/LemLib/LemLib/tree/v0.5.6)
+
+## EKF position correction (distance sensors)
+
+Four wall-facing distance sensors correct LemLib's x/y drift through an EKF that runs on top of
+LemLib's odometry. LemLib still does all the tracking; heading is never changed.
+
+- Code: `include/localization/` and `src/localization/`. Settings: `include/localization/ekf_config.hpp`.
+- Tuning and validation: [EKF_TUNING.md](EKF_TUNING.md). Off-robot tests: `tests/run_ekf_tests.sh`.
+- `localizer.start(pose)` in `autonomous()` sets the pose and starts the EKF. Use
+  `localizer.resetPose(pose)` instead of `chassis.setPose` if you reset the pose later.
+- `EKF_ENABLED = false` turns it all off. Driver-only runs never start it.
